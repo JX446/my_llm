@@ -1,0 +1,23 @@
+{
+  "architectures": [
+    "Transformer"
+  ],
+  "auto_map": {
+    "AutoConfig": "ModelConfig.ModelConfig",
+    "AutoModelForCausalLM": "ModelConfig.Transformer"
+  },
+  "dim": 1024,
+  "dropout": 0.0,
+  "flash_attn": true,
+  "hidden_dim": null,
+  "max_seq_len": 512,
+  "model_type": "Tiny-K",
+  "multiple_of": 64,
+  "n_heads": 16,
+  "n_kv_heads": 8,
+  "n_layers": 18,
+  "norm_eps": 1e-05,
+  "torch_dtype": "float32",
+  "transformers_version": "4.52.4",
+  "vocab_size": 6144
+}
