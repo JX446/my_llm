@@ -13,7 +13,7 @@ from contextlib import nullcontext
 
 from transformers import AutoTokenizer
 
-from ModelConfig import ModelConfig, Transformer
+from ModelConfig import ModelConfig, LLaMA2
 from deal_dataset import PretrainDataset
 
 import swanlab
@@ -198,7 +198,7 @@ def init_model():
     tokenizer = AutoTokenizer.from_pretrained('./tokenizer_k/')
 
     # 根据配置创建Transformer模型
-    model = Transformer(lm_config)
+    model = LLaMA2(lm_config)
     
     # 多卡初始化：检查可用GPU数量并设置DataParallel
     num_gpus = torch.cuda.device_count()
@@ -211,7 +211,7 @@ def init_model():
     model = model.to(args.device)
     
     # 计算并打印模型参数量（以百万为单位）
-    Logger(f'LLM总参数量：{count_parameters(model) / 1e6:.3f} 百万')
+    Logger(f'LLM总参数量：{count_parameters(model) / 1e6:.3f} M')
     return model, tokenizer
 
 
@@ -287,7 +287,7 @@ if __name__ == "__main__":
 
     # 设置混合精度训练的上下文管理器
     # CPU训练时使用nullcontext，GPU训练时使用autocast
-    ctx = nullcontext() if device_type == "cpu" else torch.cuda.amp.autocast()
+    ctx = nullcontext() if device_type == "cpu" else torch.amp.autocast()
 
     # ==================== 模型和数据初始化 ====================
     # 初始化模型和分词器
@@ -309,7 +309,7 @@ if __name__ == "__main__":
     # ==================== 优化器和训练组件初始化 ====================
     # 初始化混合精度训练的梯度缩放器
     # 只有在使用float16或bfloat16时才启用
-    scaler = torch.cuda.amp.GradScaler(enabled=(args.dtype in ['float16', 'bfloat16']))
+    scaler = torch.amp.GradScaler(enabled=(args.dtype in ['float16', 'bfloat16']))
     
     # 初始化Adam优化器
     optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)

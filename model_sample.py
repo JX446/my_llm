@@ -2,7 +2,7 @@ import os
 import pickle
 from contextlib import nullcontext
 import torch
-from ModelConfig import ModelConfig, Transformer
+from ModelConfig import ModelConfig, LLaMA2
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import argparse
 
@@ -36,7 +36,7 @@ class TextGenerator:
         
         # 加载模型检查点文件
         checkpoint_dict = torch.load(self.checkpoint, map_location=self.device)  # 加载模型参数 # 初始化模型参数
-        self.model = Transformer(ModelConfig(dim=1024, n_layers=18))  # 实例化 Transformer 模型
+        self.model = LLaMA2(ModelConfig(dim=1024, n_layers=18))  # 实例化 Transformer 模型
         sunwanted_prefix = '_orig_mod.'
         for k, v in list(checkpoint_dict.items()):
             if k.startswith(sunwanted_prefix):
@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
     generator = TextGenerator(checkpoint='./base_model_215M/pretrain.pth')  # 初始化生成器
     for i in range(len(pretrain_prompt_datas)):
-        samples = generator.pretrain_sample(start=pretrain_prompt_datas[i], num_samples=1, max_new_tokens=120, temperature=0.75)
+        samples = generator.pretrain_sample(start=pretrain_prompt_datas[i], num_samples=1, max_new_tokens=120, temperature=0.5)
         print(f"\nSample {i+1}:\n{pretrain_prompt_datas[i]}{samples[0]}\n{'-'*20}")  # 打印生成的样本并用分隔线分割
 
     print("\n ------------------- SFT Sample ------------------- \n")
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     ]
     generator = TextGenerator(checkpoint='./base_model_215M/sft.pth')  # 初始化生成器
     for i in range(len(sft_prompt_datas)):
-        samples = generator.sft_sample(start=sft_prompt_datas[i], num_samples=1, max_new_tokens=128, temperature=0.6)
+        samples = generator.sft_sample(start=sft_prompt_datas[i], num_samples=1, max_new_tokens=128, temperature=0.5)
         print(f"\nSample {i+1}:\nQuestion: {sft_prompt_datas[i]} \nAI answer: {samples[0]}\n{'-'*20}")  # 打印生成的样本并用分隔线分割
 
     

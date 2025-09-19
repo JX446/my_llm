@@ -174,7 +174,7 @@ class MLP(nn.Module):
         if hidden_dim is None:
             hidden_dim = 4 * dim
             hidden_dim = int(2 * hidden_dim / 3)
-            hidden_dim = multiple_of * ((hidden_dim + multiple_of - 1) // multiple_of)
+            hidden_dim = multiple_of * ((hidden_dim + multiple_of - 1) // multiple_of) # 向上取整对齐为64的倍数
             self.w1 = nn.Linear(dim, hidden_dim, bias=False)
             self.w2 = nn.Linear(hidden_dim, dim, bias=False)
             self.w3 = nn.Linear(dim, hidden_dim, bias=False)
@@ -211,7 +211,7 @@ class DecoderLayer(nn.Module):
         out = h + self.feed_forward.forward(self.ffn_norm(h))
         return out    
     
-class Transformer(PreTrainedModel):
+class LLaMA2(PreTrainedModel):
     config_class = ModelConfig
     last_loss: Optional[torch.Tensor]
 
@@ -227,7 +227,7 @@ class Transformer(PreTrainedModel):
             self.layers.append(DecoderLayer(layer_id, args))
         self.norm = RMSNorm(args.dim, eps=args.norm_eps)
         self.output = nn.Linear(args.dim, args.vocab_size, bias=False)
-        self.tok_embeddings.weight = self.output.weight
+        self.tok_embeddings.weight = self.output.weight 
 
         freqs_cos, freqs_sin = precompute_freqs_cis(self.args.dim // self.args.n_heads, self.args.max_seq_len)
         self.register_buffer("freqs_cos", freqs_cos, persistent=False)
@@ -298,13 +298,13 @@ class Transformer(PreTrainedModel):
 
         return idx[:, index:]
     
-args = ModelConfig()
-# LLaMA2Model.forward 接受两个参数，tokens和targets，其中tokens是输⼊的张量, 应为int类型
-x = torch.randint(0, 6144, (1, 50)) # [bs, seq_len]
-# 实例化LLaMA2Model
-model = Transformer(args=args)
-# 计算model的全部参数
-num_params = sum(p.numel() for p in model.parameters())
-print('Number of parameters:', num_params)
-out = model(x)
-print(out.logits.shape) # [batch_size, 1, vocab_size]
+# args = ModelConfig()
+# # LLaMA2Model.forward 接受两个参数，tokens和targets，其中tokens是输⼊的张量, 应为int类型
+# x = torch.randint(0, 6144, (1, 50)) # [batch_size, seq_len]
+# # 实例化LLaMA2Model
+# model = Transformer(args=args)
+# # 计算model的全部参数
+# num_params = sum(p.numel() for p in model.parameters())
+# print('Number of parameters:', num_params)
+# out = model(x)
+# print(out.logits.shape) # [batch_size, 1, vocab_size]

@@ -12,7 +12,7 @@ from contextlib import nullcontext
 
 from transformers import AutoTokenizer
 
-from ModelConfig import ModelConfig, Transformer
+from ModelConfig import ModelConfig, LLaMA2
 from deal_dataset import SFTDataset
 
 import swanlab
@@ -129,7 +129,7 @@ def init_model():
     tokenizer = AutoTokenizer.from_pretrained('./tokenizer_k/')
 
     # 初始化模型
-    model = Transformer(lm_config)
+    model = LLaMA2(lm_config)
 
     # 加载预训练权重
     ckp = './base_model_215M/pretrain_1024_18_6144.pth'
@@ -201,7 +201,7 @@ if __name__ == "__main__":
     device_type = "cuda" if "cuda" in args.device else "cpu"
 
     # 上下文管理器
-    ctx = nullcontext() if device_type == "cpu" else torch.cuda.amp.autocast()
+    ctx = nullcontext() if device_type == "cpu" else torch.amp.autocast()
 
     # 初始化模型和分词器
     model, tokenizer = init_model()
@@ -218,7 +218,7 @@ if __name__ == "__main__":
     )
 
     # 缩放器和优化器
-    scaler = torch.cuda.amp.GradScaler(enabled=(args.dtype in ['float16', 'bfloat16']))
+    scaler = torch.amp.GradScaler(enabled=(args.dtype in ['float16', 'bfloat16']))
     optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
 
     # 开始训练
